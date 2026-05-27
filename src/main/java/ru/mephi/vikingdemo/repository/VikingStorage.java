@@ -1,5 +1,6 @@
 package ru.mephi.vikingdemo.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,5 +62,9 @@ public class VikingStorage {
     @Transactional
     public void deleteById(int id) {
         vikingRepository.deleteById(id);
+    }
+
+    public List<Integer> findAllIds() {
+        return vikingRepository.findAll().stream().map(VikingEntity::id).toList();
     }
 }

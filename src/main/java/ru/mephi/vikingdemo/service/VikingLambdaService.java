@@ -1,63 +1,83 @@
 package ru.mephi.vikingdemo.service;
 
 import org.springframework.stereotype.Service;
-import ru.mephi.vikingdemo.model.*;
+import ru.mephi.vikingdemo.model.BeardStyle;
+import ru.mephi.vikingdemo.model.HairColor;
+import ru.mephi.vikingdemo.model.Viking;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VikingLambdaService {
 
-    public long countByAge(List<Viking> vikings, Predicate<Integer> condition) {
+    public long countByAgeGreater(List<Viking> vikings, int age) {
+        return vikings.stream().filter(v -> v.age() > age).count();
+    }
+
+    public long countByAgeLess(List<Viking> vikings, int age) {
+        return vikings.stream().filter(v -> v.age() < age).count();
+    }
+
+    public long countByAgeEqual(List<Viking> vikings, int age) {
+        return vikings.stream().filter(v -> v.age() == age).count();
+    }
+
+    public long countByAgeInRange(List<Viking> list, int min, int max) {
+        return list.stream().filter(v -> v.age() >= min && v.age() <= max).count();
+    }
+
+    public long countByAgeOutOfRange(List<Viking> list, int min, int max) {
+        return list.stream().filter(v -> v.age() < min || v.age() > max).count();
+    }
+
+    public long countByBeardAndHair(List<Viking> vikings, BeardStyle beard, HairColor hair) {
         return vikings.stream()
-                .map(Viking::age)
-                .filter(condition)
+                .filter(v -> v.beardStyle() == beard && v.hairColor() == hair)
                 .count();
     }
 
-    public long countByAppearance(List<Viking> vikings, BeardStyle style, HairColor color) {
+    public long countByAxes(List<Viking> vikings) {
         return vikings.stream()
-                .filter(v -> v.beardStyle() == style && v.hairColor() == color)
+                .filter(v -> {
+                    long axesCount = v.equipment().stream()
+                            .filter(e -> e.name().equalsIgnoreCase("Axe"))
+                            .count();
+                    return axesCount == 1 || axesCount == 2;
+                })
                 .count();
     }
 
-    public long countByAxes(List<Viking> vikings, int axeCount) {
-        return vikings.stream()
-                .filter(v -> v.equipment().stream()
-                        .filter(item -> item.name().toLowerCase().contains("axe"))
-                        .count() == axeCount)
-                .count();
-    }
-
-    public Optional<Viking> getRandomTallViking(List<Viking> vikings) {
+    public Viking findRandomVikingTaller_180(List<Viking> vikings) {
         return vikings.stream()
                 .filter(v -> v.heightCm() > 180)
-                .findAny();
+                .findAny().orElse(null);
     }
 
-    public List<Viking> getLegendaryVikings(List<Viking> vikings) {
+    public List<Viking> findVikingsWithLegendEquip(List<Viking> vikings) {
         return vikings.stream()
                 .filter(v -> v.equipment().stream()
-                        .anyMatch(item -> "Legendary".equalsIgnoreCase(item.quality())))
+                        .anyMatch(e -> e.quality().equalsIgnoreCase("Legendary")))
                 .toList();
     }
 
-    public List<Viking> getSortedRedBeards(List<Viking> vikings) {
+    public List<Viking> getSortedRedBeardedVikings(List<Viking> vikings) {
         return vikings.stream()
-                .filter(v -> v.hairColor() == HairColor.Red && v.beardStyle() != BeardStyle.CLEAN_SHAVEN)
+                .filter(v -> v.hairColor() == HairColor.Red)
                 .sorted(Comparator.comparingInt(Viking::age))
                 .toList();
     }
 
-    public Integer getMaxId(List<Integer> ids) {
-        return ids.stream()
-                .max(Integer::compare)
-                .orElse(0);
+    public Integer findMaxId(Integer[] ids) {
+        return Arrays.stream(ids)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
     }
 
-    public List<Integer> getEvenIds(List<Integer> ids) {
-        return ids.stream()
+    public List<Integer> findAllEvenIds(Integer[] ids) {
+        return Arrays.stream(ids)
                 .filter(id -> id % 2 == 0)
                 .toList();
     }

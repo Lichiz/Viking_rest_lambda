@@ -5,20 +5,16 @@ import ru.mephi.vikingdemo.model.Viking;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.mephi.vikingdemo.repository.VikingStorage;
 
 @Service
 public class VikingService {
-    // каждый раз при изменении создаётся новая копия списка 
 
     private final VikingFactory vikingFactory;
     private final VikingStorage vikingStorage;
-    
-    
+
+
     @Autowired
     public VikingService(
             VikingFactory vikingFactory,
@@ -40,8 +36,12 @@ public class VikingService {
         vikingStorage.deleteById(id);
     }
 
-    public List<Viking> generateMassive(int count) {
-        return Stream.generate(vikingFactory::createRandomViking)
-                .limit(count).map(vikingStorage::save).toList();
+    public void generateAndSaveMassive(int count) {
+        vikingFactory.createRandomVikings(count)
+                .forEach(vikingStorage::save);
+    }
+
+    public Integer[] getAllIds() {
+        return vikingStorage.findAllIds().toArray(new Integer[0]);
     }
 }

@@ -34,4 +34,10 @@ public class VikingFactory {
                 EquipmentFactory.createItem()
         );
     }
+
+    public List<Viking> createRandomVikings(int count) {
+        return java.util.stream.Stream.generate(this::createRandomViking)
+                .limit(count)
+                .toList();
+    }
 }
